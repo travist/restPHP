@@ -5,10 +5,10 @@ require_once 'Server.php';
 
 class restPHP_Resource {
 
-  /** The ID of this entity. */
+  /** The ID of this resource. */
   public $id = '';
 
-  /** The entity type. */
+  /** The resource type. */
   public $type = '';
 
   /** The Server object. */
@@ -67,40 +67,40 @@ class restPHP_Resource {
   }
 
   /**
-   * Returns the default filter for creating the list of entities.
+   * Returns the default index filter.
    */
-  protected function getDefaultListFilter() {
+  protected function getIndexDefaults() {
     return array();
   }
 
   /**
-   * Parse function to parse out entities returned by list functions.
+   * Parse function to parse out resources returned by list functions.
    *
-   * @param type $entities
+   * @param type $resources
    */
-  protected function parseEntities($entities, $className) {
+  protected function parse($resources, $className) {
 
     // Now iterate through all the channels.
-    foreach ($entities as &$entity) {
+    foreach ($resources as &$resource) {
 
-      // Convert it to an entity object.
-      $entity = new $className($entity);
+      // Convert it to a resource object.
+      $resource = new $className($resource);
     }
 
-    // Return the entity array.
-    return $entities;
+    // Return the resource array.
+    return $resources;
   }
 
   /**
-   * Returns the list of entities.
+   * Returns the list of resources.
    */
-  protected function getEntityList($endpoint, $filter, $className) {
+  protected function getIndex($endpoint, $filter, $className) {
 
-    // Get the entities from the server.
-    if ($entities = $this->server->get($endpoint, $filter)) {
+    // Get the resources from the server.
+    if ($resources = $this->server->get($endpoint, $filter)) {
 
-      // Now return the entity list.
-      return $this->parseEntities($entities, $className);
+      // Now return the parsed resources.
+      return $this->parse($resources, $className);
     }
     else {
 
@@ -112,46 +112,25 @@ class restPHP_Resource {
   /**
    * Returns a list of self() objects.
    */
-  public function getList($filter = array(), $param = '') {
+  public function index($filter = array()) {
 
-    // You must have an entity type to continue.
+    // You must have an resource type to continue.
     if (!$this->type) {
       return FALSE;
     }
 
     // Get a filter with provided defaults.
-    $filter = $this->getFilter($filter, $this->getDefaultListFilter());
+    $filter = $this->getFilter($filter, $this->getIndexDefaults());
 
     // Get the endpoint.
     $endpoint = $this->type;
-    $endpoint .= $param ? "/$param" : '';
 
-    // Return the entity list.
-    return $this->getEntityList($endpoint, $filter, get_class($this));
+    // Return an index list.
+    return $this->getIndex($endpoint, $filter, get_class($this));
   }
 
   /**
-   * Returns a list of entities of a specific type within this entity.
-   */
-  public function getTypeList($type, $filter, $defaults, $className) {
-
-    // There must be an ID for this to work.
-    if (!$this->id) {
-      return FALSE;
-    }
-
-    // Get a filter with provided defaults.
-    $filter = $this->getFilter($filter, $defaults);
-
-    // Get the endpoint.
-    $endpoint = $this->type . '/' . $this->id . '/' . $type;
-
-    // Return the entity list.
-    return $this->getEntityList($endpoint, $filter, $className);
-  }
-
-  /**
-   * Gets the properties of this entity.
+   * Gets the properties of this resource.
    */
   public function get() {
     if ($this->type && $this->id) {
@@ -172,7 +151,7 @@ class restPHP_Resource {
   }
 
   /**
-   * Delete's an entity.
+   * Delete's an resource.
    */
   public function delete() {
     if ($this->type && $this->id) {

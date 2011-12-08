@@ -146,24 +146,44 @@ class restPHP_Server {
   }
 
   /**
-   * Performs a set call, which is CREATE without an id, and UPDATE with an id.
+   * Performs a put call.
+   */
+  public function put($endpoint, $params) {
+    $params = (array)$params;
+    return $this->call($endpoint, HTTP_Request2::METHOD_PUT, $params, NULL);
+  }
+
+  /**
+   * Performs a post call.
+   */
+  public function post($endpoint, $params) {
+    $params = (array)$params;
+    return $this->call($endpoint, HTTP_Request2::METHOD_POST, $params, NULL);
+  }
+
+  /**
+   * Deletes an resource.
+   */
+  public function delete($endpoint) {
+    return $this->call($endpoint, HTTP_Request2::METHOD_DELETE, NULL, NULL);
+  }
+
+  /**
+   * Performs a set call, which is POST without an ID, and PUT with an ID.
    */
   public function set($endpoint, $params) {
     if ($params) {
       $params = (array)$params;
-      $method = (isset($params['id']) && $params['id']) ? HTTP_Request2::METHOD_PUT : HTTP_Request2::METHOD_POST;
-      return $this->call($endpoint, $method, $params, NULL);
+      if (isset($params['id']) && $params['id']) {
+        return $this->put($endpoint, $params);
+      }
+      else {
+        return $this->post($endpoint, $params);
+      }
     }
     else {
       return FALSE;
     }
-  }
-
-  /**
-   * Deletes an entity.
-   */
-  public function delete($endpoint) {
-    return $this->call($endpoint, HTTP_Request2::METHOD_DELETE, NULL, NULL);
   }
 }
 ?>
