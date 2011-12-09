@@ -121,9 +121,9 @@ class restPHP_Resource {
    * @param type $filter
    * @return type
    */
-  public static function index($filter = array()) {
+  public static function index($filter = array(), $params = array()) {
     $class = get_called_class();
-    $resource = new $class();
+    $resource = new $class($params);
     return $resource->__index($filter);
   }
 
